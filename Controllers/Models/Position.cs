@@ -6,9 +6,6 @@ namespace DepthChart01.Controllers.Models
     [Serializable, BsonIgnoreExtraElements]
     public class Position
     {
-        [BsonId, BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]
-        public string PositionId{ get; set; }
-
         [BsonElement("player_id"), BsonRepresentation(BsonType.ObjectId)]
         public string PlayerId { get; set; }
 

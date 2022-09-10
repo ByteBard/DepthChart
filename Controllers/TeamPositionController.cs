@@ -5,15 +5,13 @@ using MongoDB.Driver;
 
 namespace DepthChart01.Controllers
 {
-    [Route("api/DepthChart")]
+    [Route("api/TeamPosition")]
     [ApiController]
-    public class DepthChartController : ControllerBase
+    public class TeamPositionController : ControllerBase
     {
-        private readonly IMongoCollection<Player> _playerCollection;
-        private readonly IMongoCollection<PlayerPosition> _positionCollection;
-        private readonly IMongoCollection<Team> _teamCollection;
         private readonly IMongoCollection<TeamPosition> _teamPositionCollection;
-        public DepthChartController()
+        private readonly IMongoCollection<Team> _teamCollection;
+        public TeamPositionController()
         {
             var dbHost = "localhost";
             var dbName = "depth_chart";
@@ -22,11 +20,16 @@ namespace DepthChart01.Controllers
             var mongoUrl = MongoUrl.Create(connectionString);
             var mongoClient = new MongoClient(mongoUrl);
             var database = mongoClient.GetDatabase(mongoUrl.DatabaseName);
-            _playerCollection = database.GetCollection<Player>("player");
-            _positionCollection = database.GetCollection<PlayerPosition>("position");
             _teamCollection = database.GetCollection<Team>("team");
             _teamPositionCollection = database.GetCollection<TeamPosition>("team_position");
 
+        }
+
+        [HttpPost("AddPlayerToDepthChart/{player}/{position}")]
+        public async Task<ActionResult> AddPlayerToDepthChart(string player, int position)
+        {
+            //await _teamCollection.InsertOneAsync(team);
+            return Ok();
         }
     }
 }

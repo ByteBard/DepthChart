@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace DepthChart01.Controllers.Models
 {
     [Serializable, BsonIgnoreExtraElements]
-    public class Position
+    public class PlayerPosition
     {
         [BsonElement("player_id"), BsonRepresentation(BsonType.ObjectId)]
         public string PlayerId { get; set; }

@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace DepthChart01.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/DepthChart")]
     [ApiController]
     public class DepthChartController : ControllerBase
     {
@@ -27,42 +27,6 @@ namespace DepthChart01.Controllers
             _teamCollection = database.GetCollection<Team>("team");
             _teamPositionCollection = database.GetCollection<TeamPosition>("team_position");
 
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Player>>> GetPlayers()
-        {
-            return await _playerCollection.Find(Builders<Player>.Filter.Empty).ToListAsync();
-        }
-
-        [HttpGet("{playerId}")]
-        public async Task<ActionResult<IEnumerable<Player>>> GetPlayerById(string playerId)
-        {
-            var filerDefinition = Builders<Player>.Filter.Eq(x => x.PlayerId, playerId);
-            return await _playerCollection.Find(filerDefinition).ToListAsync();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> CreatePlayer(Player player)
-        {
-            await _playerCollection.InsertOneAsync(player);
-            return Ok();
-        }
-
-        [HttpPut]
-        public async Task<ActionResult> Update(Player player) 
-        {
-            var filerDefinition = Builders<Player>.Filter.Eq(x => x.PlayerId, player.PlayerId);
-            await _playerCollection.ReplaceOneAsync(filerDefinition, player);
-            return Ok();
-        }
-
-        [HttpDelete("{playerId}")]
-        public async Task<ActionResult> Delete(string playerId)
-        {
-            var filerDefinition = Builders<Player>.Filter.Eq(x => x.PlayerId, playerId);
-            await _playerCollection.DeleteOneAsync(filerDefinition);
-            return Ok();
         }
     }
 }

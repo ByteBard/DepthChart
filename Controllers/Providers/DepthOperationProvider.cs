@@ -4,26 +4,26 @@ using TeamPosition = DepthChart01.Controllers.Models.TeamPosition;
 
 namespace DepthChart01.Controllers.Providers
 {
-    public class TeamPositionProvider
+    public class DepthOperationProvider
     {
         private TeamPosition _teamPosition;
         private Player[] _allPlayers;
         public TeamPosition TeamPosition { get => _teamPosition; set => _teamPosition = value; }
         public Player[] AllPlayers { get => _allPlayers; set => _allPlayers = value; }
 
-        public TeamPositionProvider(TeamPosition teamPosition, Player[] players)
+        public DepthOperationProvider(TeamPosition teamPosition, Player[] players)
         {
             _teamPosition = teamPosition;
             _allPlayers = players;
         }
 
-        //Add Player To Depth Chart
+        //Add TeamPlayer To Depth Chart
         public TeamPosition? AddPlayerToDepthChart(Player player, int? targetOrder = null)
         {
             if (
                 _teamPosition == null || 
                 _teamPosition.PlayerPositions == null || 
-                //Player already exist in the Position! Skip...
+                //TeamPlayer already exist in the Position! Skip...
                 _teamPosition.PlayerPositions.Any(x => x.PlayerId == player.PlayerId)
                 ) return null;
 
@@ -111,7 +111,7 @@ namespace DepthChart01.Controllers.Providers
             }
         }
 
-        //Remove Player From Depth Chart
+        //Remove TeamPlayer From Depth Chart
         public static Player[] GetRemovedPlayerFromPosition(Player player, List<PlayerPosition> playerPositions)
         {
             if (player == null || playerPositions == null || !playerPositions.Any()) return new Player[] { };

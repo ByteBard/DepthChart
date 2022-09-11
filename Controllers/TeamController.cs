@@ -9,6 +9,7 @@ namespace DepthChart01.Controllers
     [ApiController]
     public class TeamController : ControllerBase
     {
+        private readonly string _defalutTeamName = "TBB";
         private readonly IMongoCollection<Team> _teamCollection;
         public TeamController()
         {

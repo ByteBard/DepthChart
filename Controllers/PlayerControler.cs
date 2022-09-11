@@ -2,14 +2,17 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using System.Text.RegularExpressions;
 
 namespace DepthChart01.Controllers
 {
-    [Route("api/Player")]
+    [Route("api/TeamPlayer")]
     [ApiController]
     public class PlayerControler : ControllerBase
     {
         private readonly IMongoCollection<Player> _playerCollection;
+        private readonly IMongoCollection<Team> _teamCollection;
+        private readonly string _defalutTeamName = "TBB";
         public PlayerControler()
         {
             var dbHost = "localhost";
@@ -20,7 +23,7 @@ namespace DepthChart01.Controllers
             var mongoClient = new MongoClient(mongoUrl);
             var database = mongoClient.GetDatabase(mongoUrl.DatabaseName);
             _playerCollection = database.GetCollection<Player>("player");
-
+            _teamCollection = database.GetCollection<Team>("team");
         }
 
         [HttpGet]
@@ -36,10 +39,31 @@ namespace DepthChart01.Controllers
             return await _playerCollection.Find(filerDefinition).ToListAsync();
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreatePlayer(Player player)
+        [HttpPost("CreatePlayer/{name}/{number}")]
+        public async Task<ActionResult> CreatePlayer(string name, string number)
         {
-            await _playerCollection.InsertOneAsync(player);
+            Regex regex = new Regex(@"^\d+$");
+            var result = regex.IsMatch(number);
+            if (!result || string.IsNullOrWhiteSpace(name)) return Ok("name is empty or number is not digit");
+
+            var filerDefinition = Builders<Team>.Filter.Eq(x => x.Name, _defalutTeamName);
+            var team = await _teamCollection.Find(filerDefinition).FirstOrDefaultAsync();
+            var playerNameFilter = Builders<Player>.Filter.Eq(x => x.Name, name);
+            var players = _playerCollection.Find(playerNameFilter).ToList();
+            if(players.Any(x => x.TeamPlayerNumbers.Any(x => x.TeamId == team.TeamId))) return Ok("Player already exist!");
+            var teamPlayerNumber = new TeamPlayerNumber
+            {
+                TeamId = team.TeamId,
+                Number = number
+            };
+
+            var newPlayer = new Player()
+            {
+                Name = name,
+                TeamPlayerNumbers = new TeamPlayerNumber[] { teamPlayerNumber }
+            };
+
+            await _playerCollection.InsertOneAsync(newPlayer);
             return Ok();
         }
 

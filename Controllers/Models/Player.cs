@@ -10,5 +10,8 @@ namespace DepthChart01.Controllers.Models
 
         [BsonElement("name"), BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public string Name { get; set; }
+
+        [BsonElement("team_player_numbers")]
+        public TeamPlayerNumber[] TeamPlayerNumbers { get; set; }
     }
 }

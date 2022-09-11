@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
+using System.Xml.Linq;
 
 namespace DepthChart01.Controllers
 {
@@ -9,6 +10,7 @@ namespace DepthChart01.Controllers
     [ApiController]
     public class TeamPositionController : ControllerBase
     {
+        private readonly string _defalutTeamName = "TBB";
         private readonly IMongoCollection<TeamPosition> _teamPositionCollection;
         private readonly IMongoCollection<Team> _teamCollection;
         public TeamPositionController()
@@ -25,11 +27,31 @@ namespace DepthChart01.Controllers
 
         }
 
-        [HttpPost("AddPlayerToDepthChart/{player}/{position}")]
-        public async Task<ActionResult> AddPlayerToDepthChart(string player, int position)
+        [HttpPost("CreateTeamPosition/{position}")]
+        public async Task<ActionResult> CreateTeamPosition(string position)
         {
-            //await _teamCollection.InsertOneAsync(team);
-            return Ok();
+
+            var filerDefinition = Builders<Team>.Filter.Eq(x => x.Name, _defalutTeamName);
+            var team = await _teamCollection.Find(filerDefinition).FirstOrDefaultAsync();
+            if (team != null) 
+            {
+
+                var positionTeamFilter = Builders<TeamPosition>.Filter.Eq(x => x.TeamId, team.TeamId);
+                var positionNameFilter = Builders<TeamPosition>.Filter.Eq(x => x.Name, position);
+                var positionFilter = Builders<TeamPosition>.Filter.And(positionTeamFilter, positionNameFilter);
+                var existingTeamPosition = _teamPositionCollection.Find(positionFilter).FirstOrDefaultAsync().Result;
+                if (existingTeamPosition != null) return Ok("postition already exist!");
+
+                var teamPosition = new TeamPosition
+                {
+                    TeamId = team.TeamId,
+                    Name = position,
+                    PlayerPositions = new PlayerPosition[] { }
+                };
+                await _teamPositionCollection.InsertOneAsync(teamPosition);
+            }
+            
+            return Ok("Create Team Position ok!");
         }
     }
 }

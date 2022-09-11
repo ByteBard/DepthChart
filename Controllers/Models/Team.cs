@@ -3,6 +3,7 @@ using MongoDB.Bson;
 
 namespace DepthChart01.Controllers.Models
 {
+    [Serializable, BsonIgnoreExtraElements]
     public class Team
     {
         [BsonId, BsonElement("_id"), BsonRepresentation(BsonType.ObjectId)]

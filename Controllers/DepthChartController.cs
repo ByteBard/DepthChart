@@ -32,9 +32,11 @@ namespace DepthChart01.Controllers
 
         }
 
-        [HttpPost("AddPlayerToDepthChart/{player}/{position}")]
-        public async Task<ActionResult> AddPlayerToDepthChart(string name, string position, int? depth)
+        [HttpPost("AddPlayerToDepthChart/{position}/{name}/{depth}")]
+        public async Task<ActionResult> AddPlayerToDepthChart(string position, string name, int? depth)
         {
+            var okMsg = "Add Player To Depth Chart OK!";
+            var faliMsg = "Add Player To Depth Chart Fail!";
             var teamfiler = Builders<Team>.Filter.Eq(x => x.Name, _defalutTeamName);
             var team = _teamCollection.Find(teamfiler).FirstOrDefaultAsync().Result;
             if (team != null) 
@@ -48,10 +50,16 @@ namespace DepthChart01.Controllers
                 if (player != null) 
                 {
                     var depthOperPro = new DepthOperationProvider(teamPosition, new Player[] { });
-                    depthOperPro.AddPlayerToDepthChart(player, depth);
+                    var updatedTeamPosition = depthOperPro.AddPlayerToDepthChart(player, depth);
+                    if (updatedTeamPosition != null) 
+                    {
+                        var filerDefinition = Builders<TeamPosition>.Filter.Eq(x => x.TeamPositionId, updatedTeamPosition.TeamPositionId);
+                        await _teamPositionCollection.ReplaceOneAsync(filerDefinition, updatedTeamPosition);
+                        return Ok(okMsg);
+                    }
                 }
             }
-            return Ok();
+            return Ok(faliMsg);
         }
     }
 }

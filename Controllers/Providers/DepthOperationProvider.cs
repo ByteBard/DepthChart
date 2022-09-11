@@ -125,7 +125,7 @@ namespace DepthChart01.Controllers.Providers
         }
 
         // Get Backups for a player
-        public Player[] GetBackupPlayers(Player player)
+        public Player[] GetBackupPlayers(Player? player)
         {
             if (
                 player == null ||

@@ -21,21 +21,22 @@ namespace DepthChart01.Controllers.Providers
             _teamPositionCollection = teamPositionCollection;
         }
 
-        public Player GetPlayerByName(string name)
+        public Player GetPlayerByNameAndTeam(string name)
         {
-            var playerFilter = Builders<Player>.Filter.Eq(x => x.Name, name);
-            var player = _playerCollection.Find(playerFilter).FirstOrDefault();
+            var playerFilterName = Builders<Player>.Filter.Eq(x => x.Name, name);
+            var playerFilterTeam = Builders<Player>.Filter.Eq(x => x.CurrentTeamId, Team.TeamId);
+            var filter = Builders<Player>.Filter.And(playerFilterName, playerFilterTeam);
+            var player = _playerCollection.Find(filter).FirstOrDefault();
             return player;
         }
 
-        public async Task<ActionResult<IEnumerable<TeamPlayer>>> GetAllPlayers()
+        public async Task<ActionResult<IEnumerable<Player>>> GetAllTeamPlayers()
         {
             var positionFilter = Builders<TeamPosition>.Filter.Eq(x => x.TeamId, _team.TeamId);
             var positions = await _teamPositionCollection.Find(positionFilter).ToListAsync();
             var playerIds = positions.SelectMany(x => x.PlayerPositions).Select(x => x.PlayerId).ToArray();
             var playerFilter = Builders<Player>.Filter.In(x => x.PlayerId, playerIds);
-            var players = await _playerCollection.Find(playerFilter).ToListAsync();
-            var result = players.Select(x => TeamPlayer.FromModel(x, _team)).ToArray();
+            var result = await _playerCollection.Find(playerFilter).ToListAsync();
             return result;
         }
 

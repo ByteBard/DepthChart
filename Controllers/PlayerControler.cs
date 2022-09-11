@@ -49,8 +49,10 @@ namespace DepthChart01.Controllers
             var filerDefinition = Builders<Team>.Filter.Eq(x => x.Name, _defalutTeamName);
             var team = await _teamCollection.Find(filerDefinition).FirstOrDefaultAsync();
             var playerNameFilter = Builders<Player>.Filter.Eq(x => x.Name, name);
-            var players = _playerCollection.Find(playerNameFilter).ToList();
-            if(players.Any(x => x.TeamPlayerNumbers.Any(x => x.TeamId == team.TeamId))) return Ok("Player already exist!");
+            var playerTeamFilter = Builders<Player>.Filter.Eq(x => x.CurrentTeamId, team.TeamId);
+            var playerFilter = Builders<Player>.Filter.And(playerNameFilter, playerTeamFilter);
+            var player = _playerCollection.Find(playerFilter).FirstOrDefault();
+            if(player != null) return Ok("Player already exist!");
             var teamPlayerNumber = new TeamPlayerNumber
             {
                 TeamId = team.TeamId,
@@ -60,6 +62,7 @@ namespace DepthChart01.Controllers
             var newPlayer = new Player()
             {
                 Name = name,
+                CurrentTeamId = team.TeamId,
                 TeamPlayerNumbers = new TeamPlayerNumber[] { teamPlayerNumber }
             };
 
@@ -80,6 +83,21 @@ namespace DepthChart01.Controllers
         {
             var filerDefinition = Builders<Player>.Filter.Eq(x => x.PlayerId, playerId);
             await _playerCollection.DeleteOneAsync(filerDefinition);
+            return Ok();
+        }
+
+        [HttpGet("UpdateAllPlayersWithTeamId")]
+        public async Task<ActionResult> UpdateAllPlayersWithTeamId()
+        {
+            var res = _playerCollection.Find(Builders<Player>.Filter.Empty).ToListAsync().Result;
+
+            foreach(Player player in res)
+            {
+                player.CurrentTeamId = "631ca7ca160fcee130e4bfc3";
+                var filerDefinition = Builders<Player>.Filter.Eq(x => x.PlayerId, player.PlayerId);
+                await _playerCollection.ReplaceOneAsync(filerDefinition, player);
+            }
+
             return Ok();
         }
     }

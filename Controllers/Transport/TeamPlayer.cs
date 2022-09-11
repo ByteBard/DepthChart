@@ -12,22 +12,25 @@ namespace DepthChart01.Controllers.Transport
         public string Name { get; set; }
 
         public string Number { get; set; }
+        public string Position { get; set; }
+        public int? PositionDepth { get; set; }
 
-        public static TeamPlayer FromModel(Player player, Team team)
+        public static TeamPlayer FromModel(Player player, Team team, Dictionary<string, int> positionDic, TeamPosition position)
         {
             var number = string.Empty;
             var splits = Regex.Split(player.Name, @"(?<!^)(?=[A-Z])");
             var name = string.Join(" ", splits);
             var teamMatched = player.TeamPlayerNumbers.FirstOrDefault(x => x.TeamId == team.TeamId);
+            var positionDepth = (positionDic != null && positionDic.ContainsKey(player.PlayerId)) ? positionDic[player.PlayerId] : (int?) null;
             if (teamMatched != null) number = teamMatched.Number;
             return new TeamPlayer
             {
                 PlayerId = player.PlayerId,
                 Name = name,
-                Number = number
+                Number = number,
+                Position = position.Name,
+                PositionDepth = positionDepth
             };
         }
-
-        
     }
 }
